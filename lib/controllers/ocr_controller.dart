@@ -14,8 +14,8 @@ class OCRcontroller {
     ocRservice.getPhoto(context);
   }
 
-  void cropImage(BuildContext context, Uint8List image) {
-    ocRservice.cropping(context, image);
+  Future<void> cropImage(BuildContext context, Uint8List image) {
+    return ocRservice.cropping(context, image);
   }
 
   void shareOutput(BuildContext context, String text) {
