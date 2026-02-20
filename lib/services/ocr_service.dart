@@ -13,8 +13,11 @@ class OCRservice {
     final pickedFile =
         await ImagePicker().pickImage(source: ImageSource.camera);
 
+    if (!context.mounted) return;
+
     if (pickedFile != null) {
       final newImg = await pickedFile.readAsBytes();
+      if (!context.mounted) return;
       Navigator.push(context,
           MaterialPageRoute(builder: (context) => CropScreen(image: newImg)));
     } else {
@@ -26,8 +29,11 @@ class OCRservice {
     final pickedFile =
         await ImagePicker().pickImage(source: ImageSource.gallery);
 
+    if (!context.mounted) return;
+
     if (pickedFile != null) {
       final newImg = await pickedFile.readAsBytes();
+      if (!context.mounted) return;
       Navigator.push(context,
           MaterialPageRoute(builder: (context) => CropScreen(image: newImg)));
     } else {
@@ -35,27 +41,28 @@ class OCRservice {
     }
   }
 
-  void cropping(BuildContext context, Uint8List image) {
+  Future<void> cropping(BuildContext context, Uint8List image) async {
     try {
-      String fileName = 'temp.png';
       final tempDir = Directory.systemTemp;
-      final tempPath = tempDir.path;
-
-      final tempFile = File('$tempPath/$fileName');
-      tempFile.writeAsBytesSync(image);
-      _scanImage(context, tempFile.path);
+      final tempFile = File('${tempDir.path}/temp_ocr.png');
+      await tempFile.writeAsBytes(image);
+      if (!context.mounted) return;
+      await _scanImage(context, tempFile.path);
     } catch (e) {
+      if (!context.mounted) return;
       showSnackBar(context: context, content: e.toString());
     }
   }
 
   Future<void> _scanImage(BuildContext context, String path) async {
+    TextRecognizer? textRecognizer;
     try {
+      textRecognizer = TextRecognizer();
       final inputImage = InputImage.fromFilePath(path);
-      final textRecognizer = TextRecognizer();
       final RecognizedText recognisedText =
           await textRecognizer.processImage(inputImage);
 
+      if (!context.mounted) return;
       Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(
@@ -64,7 +71,10 @@ class OCRservice {
                   )),
           (Route<dynamic> route) => false);
     } catch (e) {
+      if (!context.mounted) return;
       showSnackBar(context: context, content: e.toString());
+    } finally {
+      await textRecognizer?.close();
     }
   }
 
@@ -72,6 +82,7 @@ class OCRservice {
     try {
       Share.share(text);
     } catch (e) {
+      if (!context.mounted) return;
       showSnackBar(context: context, content: e.toString());
     }
   }

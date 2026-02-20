@@ -22,8 +22,9 @@ void main() {
     await tester.tap(find.widgetWithText(ElevatedButton, 'Select Image'));
     await tester.pump();
 
-    // Check Alert Dialog
+    // Check Alert Dialog with Camera and Gallery buttons
     expect(find.text('Choose an option'), findsOneWidget);
-    expect(find.byType(IconButton), findsNWidgets(2));
+    expect(find.widgetWithText(ElevatedButton, 'Camera'), findsOneWidget);
+    expect(find.widgetWithText(ElevatedButton, 'Gallery'), findsOneWidget);
   });
 }
